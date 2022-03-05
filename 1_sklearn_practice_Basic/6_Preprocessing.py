@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 
 # preprocessing 데이터 전처리 모듈
-#   - 데이터의 특징 스케일링(feature scaling)을 위한 방법으로 표준화(Standardization)와 저규화(Normalization)을 사용
+#   - 데이터의 특징 스케일링(feature scaling)을 위한 방법으로 표준화(Standardization)와 정규화(Normalization)을 사용
 #   - 표준화(Standardization) 방법 :  x.i' = x.i - mean(x)/ stdev(x)
 #   - 정규화(Normalization) 방법 :  x.i' = x.i - min(x)/ max(x) - min(x) -> minmax scaling
 #   * x.i' : 처리된 결과 값을 의미한다.

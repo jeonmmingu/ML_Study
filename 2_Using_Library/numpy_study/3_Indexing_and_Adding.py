@@ -14,3 +14,7 @@ print("6.",a[0:1])
 a = np.array([1.2,-1.3,2.2,5.3,3.7])
 idx = [0,3]
 print(a[idx])
+
+
+# ex3.Boolean matrix
+
