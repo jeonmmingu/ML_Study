@@ -14,7 +14,7 @@ plt.style.use(['seaborn-whitegrid'])
 # numpy, matplotlib (예시)
 x = 10 * np.random.rand(50)
 y = 2 * x + np.random.rand(50)
-
+ 
 # plt.scatter(x, y)
 # plt.show()
 
@@ -25,7 +25,7 @@ from sklearn.linear_model import LinearRegression
 #       <<인자 값들의 의미>>
 #       copy_X : 입력 데이터를 복사해서 사용할 것인가? (Default : True)
 #       fit_intercept : 상수 형태의 값을 사용할 것인가? (Default : True)
-#       n_jobs : 여러 가지 수행을 병렬적으로 사용할 것인가? (Default : None)
+#       n_jobs : 여러 가지 수행을 병렬적으로 사용할 것인가? (Default : None),
 #       n ormalize : 값을 정규화해서 사용할 것인가? (Default : False)
 model = LinearRegression(fit_intercept=True)
 
