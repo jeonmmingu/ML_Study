@@ -1,14 +1,14 @@
-# model for predicting the number of movie audiences
+# model for predicting the number of movie audiences (영화 관객 수 예측 모델)
 # Base-line code
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 
-train = pd.read_csv('movies_train.csv')
-test = pd.read_csv('movies_test.csv')
+train = pd.read_csv('3_skelarn_practice\movies_train.csv')
+test = pd.read_csv('3_skelarn_practice\movies_train.csv')
 
-train.info()
-train.head()
-test.head()
+# print(train.info())
+# print(train.head())
+# print(test.head())
 
 # 데이터 전처리
 # 결측치가 많은 데이터 제거
@@ -23,8 +23,7 @@ test = test.drop(['director'],axis = 1)
 train = train.drop(['title'],axis= 1)
 test = test.drop(['title'],axis= 1)
 
-train.distributor.value_counts()
-
+# print(train.distributor.value_counts())
 
 # 상위 5개의 배급사를 제외하고 '기타'로처리
 distributor_list = train.distributor.value_counts()[:5]
@@ -46,14 +45,17 @@ test['년'] = test['release_time'].apply(lambda x: int(x[:4]))
 test['월'] = test['release_time'].apply(lambda x: int(x[5:7]))
 test =  test.drop(['release_time'],axis = 1)
 
-# 원핫 인코딩
+# One-hot 인코딩
 train = pd.get_dummies(train)
 test = pd.get_dummies(test)
 
-# 모델 정의 및 학습
+print(train)
+print(test)
+
 train_x = train.drop(['box_off_num'],axis= 1)
 train_y = train['box_off_num']
 
+# 모델 정의 및 학습
 model=RandomForestRegressor(n_estimators=100)
 model.fit(train_x,train_y)
 
