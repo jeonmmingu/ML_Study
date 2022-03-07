@@ -31,11 +31,11 @@ from sklearn.datasets import load_diabetes
 
 # API call
 diabetes = load_diabetes()
-# print(diabetes.keys())
+print(diabetes.keys())
 # Result : dict_keys(['data', 'target', 'frame', 'DESCR', 'feature_names', 'data_filename', 'target_filename', 'data_module'])
-# print(diabetes.DESCR) -> 해당 데이터의 개요를 보고 싶을 때 먼저 검색
-# print(diabetes.data) -> feature datas
-# print(diabetes.target) -> diabetes related data
+print(diabetes.DESCR) # 해당 데이터의 개요를 보고 싶을 때 먼저 검색
+# print(diabetes.data) # feature datas
+# print(diabetes.target) # diabetes related data
 # print(diabetes.feature_names)
 # print(diabetes.data_filename)
 # print(diabetes.target_filename)

@@ -10,14 +10,19 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 
 # n_featuers: 특징의 개수 / n_informative: 의미있는 feature의 개수/ n_redundant: 노이즈
-# n_clusters_per_class: 하나의 클래스 당 군집체 개수/ 분류군들을 이렇게 만드는 것이 어떤 의미 인지 확인
+# n_clusters_per_class: 하나의 클래스 당 군집체 개수
+# make_classification() : sklearn에서 제공하는 가상 분류모형 패키지이다.
 X, y = make_classification(n_samples=1000, n_features=2, n_informative=2,
                            n_redundant=0, n_clusters_per_class=1)
 
+# 모델 지정
+# https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html (Logistic Regression parameter)
+model = LogisticRegression(solver='lbfgs', multi_class='auto', C=100.0)
+
+# 데이터 처리
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
-# 인자 의미 다시 알아보기
-model = LogisticRegression(solver='lbfgs', multi_class='auto', C=100.0)
+# 모델 학습
 model.fit(X_train, y_train)
 
 # 결과 출력

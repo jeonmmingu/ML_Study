@@ -6,14 +6,17 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 import numpy as np
 
-# 데이터 처리 부분
+# 가상 분류군 생성
 X, y = make_classification(n_samples=1000, n_features=2, n_informative=2,
                            n_redundant=0, n_clusters_per_class=1)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
-
 # 모델 설정 후 학습
 model = LogisticRegression(solver='lbfgs', multi_class='auto', C=100.0)
+
+# 데이터 처리
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+
+# 모델 학습
 model.fit(X_train, y_train)
 
 # 학습 된 모델 예측 및 평가

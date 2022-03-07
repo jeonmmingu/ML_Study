@@ -1,17 +1,21 @@
+# 오차 행렬 : 예측 값과 실제 값이 잘 맞는지 확인 할 수 있는 행렬
 import matplotlib.pyplot as plt
 from sklearn.datasets import make_classification
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 
-# 데이터 처리 부분
+# 가상 분류 군 생성
 X, y = make_classification(n_samples=1000, n_features=2, n_informative=2,
                            n_redundant=0, n_clusters_per_class=1)
 
+# 모델 선정
+model = LogisticRegression(solver='lbfgs', multi_class='auto', C=100.0)
+
+# 데이터 전처리
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
-# 모델 설정 후 학습
-model = LogisticRegression(solver='lbfgs', multi_class='auto', C=100.0)
+# 모델 훈련
 model.fit(X_train, y_train)
 
 # 학습 된 모델 예측 및 평가
@@ -30,6 +34,7 @@ from sklearn.metrics import confusion_matrix
 confmat = confusion_matrix(y_true=y_test, y_pred=predict)
 print(confmat)
 
+# https://codetorial.net/matplotlib/subplot.html (subplots 관련 페이지)
 fig, ax = plt.subplots(figsize=(2.5, 2.5))
 ax.matshow(confmat, cmap=plt.cm.Blues, alpha=0.3)
 for i in range(confmat.shape[0]):
