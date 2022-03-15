@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 from pyparsing import col
 
+
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------ #
 # [1] Query
 # DataFrame에서 Boolean Equation을 사용하여 조건을 만든 후 이를 사용해 필터링하는 것 처럼 query 매서드를 사용하면
@@ -447,10 +448,200 @@ print("[45] Double slicing\n", df.loc[ ('영업이익', '컨센서스') ], "\n")
 
 # 적용
 # slice(None) : level 0 에 해당하는 모든 값들을 선택하라는 의미
-print(df.loc[ (slice(None), '컨센서스'), :])
+# print(df.loc[ (slice(None), '컨센서스'), :], "\n")
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------ #
 # [9] Multi-column
 
+# 기본적으로 DataFrame이 multi-index를 표현하는 방법
+data = [
+    [1000, 900, 800, 700],
+    [1200, 1400, 900, 800],    
+]
 
+columns = [
+    # level 0
+    ['영업이익', '영업이익', '당기순이익', '당기순이익'],
+    # level 1
+    ['컨센서스', '잠정치', '컨센서스', '잠정치']
+]
+
+df = DataFrame(data=data, index=["2020/06", "2020/09"], columns=columns)
+print("[46] DataFrame make two same column in one column\n", df, "\n")
+
+# 너무 column이 많아지게 되면 일일이 다 타이핑 하기 번거롭기 때문에 다른 메서드를 사용
+level_0 = ['영업이익', '당기순이익']
+level_1 = ['컨센서스', '잠정치']
+
+idx = pd.MultiIndex.from_product( [level_0, level_1] )
+
+print("[46] Make MultiIndex by using MultiIndex.from_product() method\n", idx, "\n")
+print("[47-1] get_level_values(0)\n", idx.get_level_values(0), "\n")
+print("[47-2] get_level_values(1)\n", idx.get_level_values(1), "\n")
+
+# DataFrame에 해당 컬럼 값을 연결
+level_0 = ['영업이익', '당기순이익']
+level_1 = ['컨센서스', '잠정치']
+columns = pd.MultiIndex.from_product( [level_0, level_1] )
+df = DataFrame(data=data, index=["2020/06", "2020/09"], columns=columns)
+df.index.name = "날짜"
+print("[48] Get the column in DataFrame\n", df, "\n")
+
+# 컬럼을 두번 참고해서 값을 가져오는 경우 두 번에 걸친 인덱싱은 속도 저하에 원인이기에 한번에 할 수 있는 방안을 모색
+print("[49] Get the column that i want\n", df[("영업이익", '컨센서스')], "\n")
+
+# 만약 인덱스와 컬럼을 뒤집고 싶을 때
+# df.transpose() 메서드를 이용하면 된다.
+# 엑셀에서 가로로 긴 형태는 읽기 불편하기 때문에 세로로 길게 구성을 하기 위해서 많이 쓰이는 매서드이다.
+print("[50] Transpose dataframe\n", df.transpose(), "\n")
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------ #
+# [10] Stack/Unstack
+# Stack() method : column -> index
+# Unstack() method : index -> column
+data = [
+    [1000, 900, 800, 700],
+    [1200, 1400, 900, 800],    
+]
+
+level_0 = ['영업이익', '당기순이익']
+level_1 = ['컨센서스', '잠정치']
+
+columns = pd.MultiIndex.from_product( [level_0, level_1] )
+
+df = DataFrame(data=data, index=["2020/06", "2020/09"], columns=columns)
+
+# 기본적으로 높은 level의 column이 index로 이동하게 된다.
+# level parameter를 set하여 level을 설정할 수 있다.
+print("[51] Stack DataFrame\n", df.stack(), "\n")
+print("[52] Stack DataFrame(Set level of index)\n", df.stack(level=0), "\n")
+
+# stack method()를 두번 사용한 경우
+print("[53] Use Stack method twice\n", df.stack().stack(), "\n")
+
+# Ex. 연도와 월을 분리하여 새로운 컬럼을 만든 후 추가하는 예제
+data = [
+    [1000, 1100, 900, 1200, 1300],
+    [800, 2000, 1700, 1500, 1800]
+]
+index = ['자본금', '부채']
+columns = ["2020/03", "2020/06", "2020/09", "2021/03", "2021/06"]
+df = DataFrame(data, index, columns)
+
+df_stacked = df.stack().reset_index()
+print("[54-1] Process 1\n", df_stacked, "\n")
+
+temp = df_stacked['level_1'].str.split('/')
+print("[54-2] Process 2\n", temp, "\n")
+
+df_split = DataFrame( list(df_stacked['level_1'].str.split('/')) )
+print("[54-3] Process 3\n", df_split, "\n")
+
+df_merged = pd.concat( [df_stacked, df_split], axis=1 )
+df_merged.columns = ['계정', "년월", "금액", "연도", "월"]
+print("[54-4] Result\n", df_merged, "\n")
+
+# 부채와 자본금을 연도별로 정리
+df_group = df_merged.groupby(["계정", "연도"]).sum()
+print("[55-1] Groupping\n", df_group, "\n")
+
+df_unstack = df_group.unstack()
+result = df_unstack['금액']
+result.columns.name = ''
+result.index.name = ''
+print("[55-2] Result\n", result, "\n")
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------ #
+# [11] Pivot
+# 기존의 데이터프레임을 재구조화 함으로써 데이터를 다양한 측면에서 분석 가능하도록 하는데에 쓰이는 method()이다.
+data = [
+    ["2021-08-12", "삼성전자", 77000],
+    ["2021-08-13", "삼성전자", 74400],
+    ["2021-08-12", "LG전자", 153000],
+    ["2021-08-13", "LG전자", 150500],
+    ["2021-08-12", "SK하이닉스", 100500],
+    ["2021-08-13", "SK하이닉스", 101500]
+]
+columns = ["날짜", "종목명", "종가"]
+df = DataFrame(data=data, columns=columns)
+
+# 종가 데이터를 새로운 데이터 프레임의 데이터 값으로 사용한다는 의미이다.
+df_pivot = pd.pivot(data=df, index="날짜", columns="종목명", values="종가")
+print("[56-1] Original Dataframe\n", df, "\n")
+print("[56-2] New Dataframe\n", df_pivot, "\n")
+
+print("[57] Using unstack() method to make new Dataframe\n",df.groupby(["날짜", "종목명"]).mean().unstack(),'\n')
+print("[58] Using pivot() method to make new Dataframe\n", pd.pivot(data=df, index="종목명", columns="날짜", values="종가"), '\n')
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------ #
+# [12] Melt
+# 컬럼이 너무 길어지면 와이드로 값이 길어지기 때문에 세로로 긴 데이터프레임으로 재구조화하는 매서드이다.
+data = [
+    ["005930", "삼성전자", 75800, 76000, 74100, 74400],
+    ["035720", "카카오", 147500, 147500, 144500, 146000],
+    ["000660", "SK하이닉스", 99600, 101500, 98900, 101500]
+]
+columns = ["종목코드", "종목명", "시가", "고가", "저가", "종가"]
+df = DataFrame(data=data, columns=columns)
+
+# 종목코드와 종목명을 제외하고 나머지 column들을 melt함.
+print("[59] Melt column values\n", df.melt(id_vars=['종목코드', '종목명']), '\n')
+
+# 특정한 컬럼들에 대해서만 슬라이싱 후 melt를 진행
+print("[60] Melt on specific columns\n", df.melt(value_vars=['시가', '종가']), '\n')
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------ #
+# [13] File saving
+
+# 기본 정보를 가지고 새로운 데이터 프레임 생성
+data = {
+    "종목명": ["3R", "3SOFT", "ACTS"],
+    "현재가": ["001510", "001790", "001185"],
+    "등락률": [7.36, 1.65, 1.28],
+}
+df = DataFrame(data, index=["037730", "036360", "005760"])
+df.index.name = "종목코드"
+
+# csv 파일로 저장
+# df.to_csv("data.csv")
+
+# 상대 경로를 설정하여 값을 저장
+# df.to_csv("2_Using_Library\pandas_study\data.csv")
+
+# os 모듈을 사용하여 해당 경로에 디렉토리가 존재하는지 검사한 후 만약 없다면 생성 후 csv파일 생성
+# import os 
+# if not os.path.isdir("abc"):
+#     os.mkdir("abc")
+# df.to_csv("abc/data.csv")
+
+# xlsx파일로 저장하는 방법
+# df.to_excel("data.xlsx", sheet_name="종목 정보")
+
+# 만약 index를 모두 제외하고 결과를 출력하고 싶은 경우 : index=False
+# 만약 column을 모두 제외하고 결과를 출력하고 싶은 경우 : header=False
+# df.to_csv("data.csv", index=False, header=False)
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------ #
+# [14] Bring File
+
+# column 1번째를 index로 취급한다는 의미이다. (index_col='column name')
+# usecols = 불러오고 싶은 column만 불러올 수 있다.
+# header => 위에서 부터 몇번째 줄부터 출력할 것인지를 정한다.
+# df = pd.read_excel("data.xlsx", header=1, index_col=1, usecols=[1, 2])  
+# print("[61] Read excel file\n", df, '\n')
+
+# 만약 값들을 불러올 때 숫자 정보중 0으로 시작하는 정보들의 0이 사라지는 경우 해당 column의 dtype을 str으로 설정하면 해결된다.
+df = pd.read_csv("data.csv")
+print("[61-1] Original DataFrame\n", df, '\n')
+
+df = pd.read_csv("data.csv", dtype={'현재가': str, '종목코드': str})
+print("[61-2] Modify DataFrame\n", df, '\n')
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------ #
